@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>もぐもぐスタディ 🍰</title>
+<meta name="theme-color" content="#b493e6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="もぐもぐ">
 <style>
   :root{
     --lav:#b493e6; --lav-light:#f3ecfc; --lav-deep:#8d6cc9;
@@ -1022,6 +1029,11 @@ function startRetrySession(){
 /* ============ 起動 ============ */
 if(S.name){ renderHome(); show("scr-home"); }
 else{ show("scr-hello"); }
+
+/* オフライン対応（ネット公開時のみ有効。ローカルで開いたときは何もしない） */
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 </script>
 </body>
 </html>
