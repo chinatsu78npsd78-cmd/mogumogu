@@ -130,6 +130,18 @@
   .dan-btn:active{transform:scale(.94);}
   .dan-btn .dc{display:block;font-size:15px;margin-top:2px;}
   .back{background:none;border:none;cursor:pointer;font-family:inherit;color:var(--lav-deep);font-size:15px;font-weight:bold;padding:6px 0 12px;}
+  #write-canvas{
+    display:block;margin:0 auto;background:#fff;border:3px solid var(--lav-light);
+    border-radius:18px;touch-action:none;max-width:100%;cursor:crosshair;
+  }
+  .write-btns{display:flex;gap:10px;margin-top:12px;}
+  .write-btns .btn{margin-top:0;}
+  .write-ans{
+    font-size:60px;font-weight:bold;text-align:center;color:var(--pink-deep);
+    background:var(--pink-light);border-radius:18px;padding:10px 12px;margin:0 auto 12px;
+    max-width:300px;animation:pop .3s ease;
+  }
+  .write-hint{font-size:12px;color:var(--soft);text-align:center;margin-top:8px;}
   .mode-note{font-size:12px;color:var(--soft);text-align:center;margin-top:8px;line-height:1.6;}
   .list-q{background:var(--lav-light);border-radius:14px;padding:12px 14px;margin-top:8px;font-size:14px;}
   .empty{text-align:center;color:var(--soft);font-size:14px;padding:20px 0;line-height:1.8;}
@@ -204,6 +216,12 @@
       <div class="choices" id="q-choices"></div>
       <div id="q-input" style="display:none;">
         <div class="keypad" id="keypad"></div>
+      </div>
+      <div id="q-write" style="display:none;">
+        <div class="write-ans" id="write-answer" style="display:none;"></div>
+        <canvas id="write-canvas" width="300" height="300"></canvas>
+        <div class="write-btns" id="write-controls"></div>
+        <p class="write-hint">ゆびで かいてみてね。「けす」で なんかいでも かきなおせるよ</p>
       </div>
       <div class="feedback" id="q-feedback"></div>
     </div>
@@ -348,10 +366,14 @@ const SWEETS=[
 
 /* ============ 問題データ（5教科） ============ */
 /* --- 国語：漢字よみ --- */
-const KANJI1=[["花","はな"],["犬","いぬ"],["空","そら"],["山","やま"],["川","かわ"],["雨","あめ"],["月","つき"],["木","き"],["音","おと"],["森","もり"],["車","くるま"],["白","しろ"],["赤","あか"],["青","あお"],["虫","むし"]].map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
-const KANJI2=[["顔","かお"],["声","こえ"],["星","ほし"],["海","うみ"],["雪","ゆき"],["風","かぜ"],["池","いけ"],["姉","あね"],["弟","おとうと"],["馬","うま"],["鳥","とり"],["魚","さかな"],["紙","かみ"],["岩","いわ"],["夜","よる"]].map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
-const KANJI3=[["旅","たび"],["島","しま"],["湖","みずうみ"],["橋","はし"],["緑","みどり"],["波","なみ"],["幸せ","しあわせ"],["苦い","にがい"],["練習","れんしゅう"],["勉強","べんきょう"],["病院","びょういん"],["荷物","にもつ"],["命","いのち"],["秒","びょう"],["係","かかり"]].map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
-const KANJI4=[["笑う","わらう"],["泣く","なく"],["勇気","ゆうき"],["願い","ねがい"],["便利","べんり"],["健康","けんこう"],["季節","きせつ"],["埼玉","さいたま"],["沖縄","おきなわ"],["静岡","しずおか"],["熊本","くまもと"],["新潟","にいがた"],["愛媛","えひめ"],["岐阜","ぎふ"],["栄養","えいよう"]].map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
+const KANJI1P=[["花","はな"],["犬","いぬ"],["空","そら"],["山","やま"],["川","かわ"],["雨","あめ"],["月","つき"],["木","き"],["音","おと"],["森","もり"],["車","くるま"],["白","しろ"],["赤","あか"],["青","あお"],["虫","むし"]];
+const KANJI2P=[["顔","かお"],["声","こえ"],["星","ほし"],["海","うみ"],["雪","ゆき"],["風","かぜ"],["池","いけ"],["姉","あね"],["弟","おとうと"],["馬","うま"],["鳥","とり"],["魚","さかな"],["紙","かみ"],["岩","いわ"],["夜","よる"]];
+const KANJI3P=[["旅","たび"],["島","しま"],["湖","みずうみ"],["橋","はし"],["緑","みどり"],["波","なみ"],["幸せ","しあわせ"],["苦い","にがい"],["練習","れんしゅう"],["勉強","べんきょう"],["病院","びょういん"],["荷物","にもつ"],["命","いのち"],["秒","びょう"],["係","かかり"]];
+const KANJI4P=[["笑う","わらう"],["泣く","なく"],["勇気","ゆうき"],["願い","ねがい"],["便利","べんり"],["健康","けんこう"],["季節","きせつ"],["埼玉","さいたま"],["沖縄","おきなわ"],["静岡","しずおか"],["熊本","くまもと"],["新潟","にいがた"],["愛媛","えひめ"],["岐阜","ぎふ"],["栄養","えいよう"]];
+const KANJI1=KANJI1P.map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
+const KANJI2=KANJI2P.map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
+const KANJI3=KANJI3P.map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
+const KANJI4=KANJI4P.map(x=>({q:"「"+x[0]+"」の よみかたは？",a:x[1]}));
 /* --- 国語：はんたいことば（小1〜2） --- */
 const HANTAI=[["たかい","ひくい"],["おおきい","ちいさい"],["あつい","さむい"],["ながい","みじかい"],["はやい","おそい"],["あかるい","くらい"],["おもい","かるい"],["つよい","よわい"],["ひろい","せまい"],["ふとい","ほそい"],["あたらしい","ふるい"],["ちかい","とおい"]].map(x=>({q:"「"+x[0]+"」の はんたいの ことばは？",a:x[1]}));
 /* --- 国語：ことわざ（小3〜4） --- */
@@ -639,6 +661,10 @@ const CATALOG=[
   {id:"kanji2",name:"かん字よみ（2年生）",grade:"小2",make:()=>fromPairs(KANJI2,10)},
   {id:"kanji3",name:"漢字よみ（3年生）",grade:"小3",make:()=>fromPairs(KANJI3,10)},
   {id:"kanji4",name:"漢字よみ（4年生）",grade:"小4",make:()=>fromPairs(KANJI4,10)},
+  {id:"kaki1",name:"かん字を かく ✍️（1年生）",grade:"小1",make:()=>makeWrite(KANJI1P,6)},
+  {id:"kaki2",name:"かん字を かく ✍️（2年生）",grade:"小2",make:()=>makeWrite(KANJI2P,6)},
+  {id:"kaki3",name:"漢字を かく ✍️（3年生）",grade:"小3",make:()=>makeWrite(KANJI3P,6)},
+  {id:"kaki4",name:"漢字を かく ✍️（4年生）",grade:"小4",make:()=>makeWrite(KANJI4P,6)},
   {id:"hantai",name:"はんたいことば",grade:"小1〜2",make:()=>fromPairs(HANTAI,10)},
   {id:"kotowaza",name:"ことわざ",grade:"小3〜4",make:()=>fromQAW(KOTOWAZA,8)}
 ]},
@@ -724,6 +750,80 @@ function openSubject(sid){
   });
   show("scr-units");
 }
+/* ===== かん字を かく（じぶんで丸つけ） ===== */
+function makeWrite(pairs,n){
+  return shuffle(pairs).slice(0,n).map(p=>({q:"「"+p[1]+"」と よむ かん字を かいてみて ✍️",kanji:p[0],write:true}));
+}
+const wcv=$("write-canvas"), wctx=wcv.getContext("2d");
+let wDrawing=false;
+function writeClear(){
+  wctx.setLineDash([]);
+  wctx.fillStyle="#ffffff"; wctx.fillRect(0,0,wcv.width,wcv.height);
+  wctx.strokeStyle="#f0e8fa"; wctx.setLineDash([6,6]); wctx.lineWidth=2;
+  wctx.beginPath();
+  wctx.moveTo(wcv.width/2,0); wctx.lineTo(wcv.width/2,wcv.height);
+  wctx.moveTo(0,wcv.height/2); wctx.lineTo(wcv.width,wcv.height/2);
+  wctx.stroke();
+  wctx.setLineDash([]);
+}
+function wpos(e){
+  const r=wcv.getBoundingClientRect();
+  return {x:(e.clientX-r.left)*(wcv.width/r.width), y:(e.clientY-r.top)*(wcv.height/r.height)};
+}
+wcv.addEventListener("pointerdown",e=>{
+  if(cur.answered)return;
+  wDrawing=true;
+  const p=wpos(e);
+  wctx.beginPath(); wctx.moveTo(p.x,p.y);
+  wctx.strokeStyle="#8d6cc9"; wctx.lineWidth=7; wctx.lineCap="round"; wctx.lineJoin="round";
+  try{ wcv.setPointerCapture(e.pointerId); }catch(err){}
+  e.preventDefault();
+});
+wcv.addEventListener("pointermove",e=>{
+  if(!wDrawing)return;
+  const p=wpos(e);
+  wctx.lineTo(p.x,p.y); wctx.stroke();
+  wctx.beginPath(); wctx.moveTo(p.x,p.y);
+  e.preventDefault();
+});
+["pointerup","pointercancel","pointerleave"].forEach(ev=>wcv.addEventListener(ev,()=>{ wDrawing=false; }));
+function renderWriteControls(stage){
+  const c=$("write-controls"); c.innerHTML="";
+  const mk=(t,cls,fn)=>{
+    const b=document.createElement("button");
+    b.className="btn small"+(cls?" "+cls:"");
+    b.style.flex="1"; b.textContent=t; b.onclick=fn;
+    c.appendChild(b);
+  };
+  if(stage===1){
+    mk("けす 🧽","ghost",writeClear);
+    mk("こたえを 見る 👀","",writeReveal);
+  }else{
+    mk("あとちょっと 🌱","ghost",writeNG);
+    mk("かけてた！🌸","",writeOK);
+  }
+}
+function writeReveal(){
+  if(cur.answered)return;
+  const q=cur.questions[cur.idx];
+  const a=$("write-answer");
+  a.textContent=q.kanji; a.style.display="block";
+  $("q-feedback").innerHTML='<div class="note">じぶんの字と くらべてみてね。じぶんで まるつけしよう</div>';
+  renderWriteControls(2);
+}
+function writeOK(){
+  if(cur.answered)return;
+  celebrate(cur.questions[cur.idx]);
+}
+function writeNG(){
+  if(cur.answered)return;
+  cur.answered=true;
+  const q=cur.questions[cur.idx];
+  if(!cur.practice)addToRetry(q);
+  $("q-feedback").innerHTML='<span class="big">つぎは きっと かける🌱</span><div class="note">「あとちょっとリスト」で いつでも れんしゅうできるよ</div>';
+  setTimeout(next,1200);
+}
+
 /* ===== 九九ロード（1ページ1問・1×1→9×9） ===== */
 let roadVal="", roadLock=false;
 function roadPos(){ return {dan:Math.floor(S.road/9)+1, b:S.road%9+1}; }
@@ -826,14 +926,21 @@ function renderQuestion(){
   cur.answered=false; cur.wrongPicks=[];
   $("q-count").textContent=(cur.idx+1)+"もんめ ／ ぜんぶで "+cur.questions.length+"もん"+(cur.practice?"　🌙れんしゅう":"");
   $("q-feedback").innerHTML="";
-  if(q.input){
-    $("q-choices").style.display="none";
+  $("q-choices").style.display="none";
+  $("q-input").style.display="none";
+  $("q-write").style.display="none";
+  if(q.write){
+    $("q-write").style.display="block";
+    $("q-text").textContent=q.q;
+    $("write-answer").style.display="none";
+    writeClear();
+    renderWriteControls(1);
+  }else if(q.input){
     $("q-input").style.display="block";
     curInputVal="";
     $("q-text").innerHTML=q.q+' <span class="ans-box" id="ans-box">&nbsp;</span>';
     buildKeypad();
   }else{
-    $("q-input").style.display="none";
     $("q-choices").style.display="grid";
     $("q-text").textContent=q.q;
     const box=$("q-choices");
@@ -916,7 +1023,7 @@ function next(){
 }
 function addToRetry(q){
   if(S.retry.some(r=>r.q===q.q))return;
-  S.retry.unshift(q.input?{q:q.q,ans:q.ans,input:true}:{q:q.q,choices:q.choices,answer:q.answer});
+  S.retry.unshift(q.write?{q:q.q,kanji:q.kanji,write:true}:q.input?{q:q.q,ans:q.ans,input:true}:{q:q.q,choices:q.choices,answer:q.answer});
   S.retry=S.retry.slice(0,30);
   save();
 }
@@ -1022,7 +1129,7 @@ function showRetry(){
 }
 function startRetrySession(){
   cur.unit=null; cur.practice=false; cur.fromRetry=true;
-  cur.questions=shuffle(S.retry).slice(0,10).map(r=>r.input?{q:r.q,ans:r.ans,input:true}:{q:r.q,choices:r.choices,answer:r.answer});
+  cur.questions=shuffle(S.retry).slice(0,10).map(r=>r.write?{q:r.q,kanji:r.kanji,write:true}:r.input?{q:r.q,ans:r.ans,input:true}:{q:r.q,choices:r.choices,answer:r.answer});
   beginSession();
 }
 
