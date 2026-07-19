@@ -155,6 +155,18 @@
 <body>
 <div class="wrap">
 
+  <!-- あいことば（はんばい用のカギ） -->
+  <div class="screen" id="scr-lock">
+    <div class="card" style="margin-top:40px;">
+      <div style="text-align:center;font-size:52px;">🔑</div>
+      <h1 style="font-size:22px;">あいことばを いれてね</h1>
+      <p class="sub">このアプリは あいことばで ひらくよ。<br>おうちの人に きいてみてね🌸</p>
+      <input class="name-in" id="lock-in" maxlength="20" placeholder="あいことば">
+      <button class="btn" onclick="tryUnlock()">ひらく 🍰</button>
+      <p class="mode-note" id="lock-msg"></p>
+    </div>
+  </div>
+
   <!-- はじめまして -->
   <div class="screen" id="scr-hello">
     <div class="card" style="margin-top:40px;">
@@ -1133,9 +1145,37 @@ function startRetrySession(){
   beginSession();
 }
 
+/* ============ あいことば（はんばい用のカギ） ============ */
+/* あいことばは そのままの形では ここに書かない（見えない形＝ハッシュ値だけを置く） */
+const LOCK_HASH="99598112";
+function moguHash(s){
+  s=s.replace(/[\s　]/g,"");
+  let h=2166136261;
+  for(const ch of s){ h^=ch.codePointAt(0); h=Math.imul(h,16777619)>>>0; }
+  return h.toString(16);
+}
+function tryUnlock(){
+  const v=$("lock-in").value;
+  if(moguHash(v)===LOCK_HASH){
+    localStorage.setItem("mogu_pass_ok","1");
+    $("lock-msg").textContent="";
+    if(S.name){ renderHome(); show("scr-home"); }
+    else{ show("scr-hello"); }
+  }else{
+    $("lock-msg").textContent="んー、ちがうみたい。もじを たしかめて、もういちど ためしてみてね🌸";
+  }
+}
+
 /* ============ 起動 ============ */
-if(S.name){ renderHome(); show("scr-home"); }
-else{ show("scr-hello"); }
+if(S.name){
+  /* すでに使っている子は そのまま入れる（あとから鍵をつけたため） */
+  localStorage.setItem("mogu_pass_ok","1");
+  renderHome(); show("scr-home");
+}else if(localStorage.getItem("mogu_pass_ok")==="1"){
+  show("scr-hello");
+}else{
+  show("scr-lock");
+}
 
 /* オフライン対応（ネット公開時のみ有効。ローカルで開いたときは何もしない） */
 if("serviceWorker" in navigator && location.protocol==="https:"){
