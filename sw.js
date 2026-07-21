@@ -1,5 +1,5 @@
 // もぐもぐスタディ オフライン対応（ネット優先・つながらない時はキャッシュ）
-const CACHE = "mogu-v3";
+const CACHE = "mogu-v4";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -16,6 +16,8 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  // Firebaseなど外部サーバーへの通信は、そのまま通す（キャッシュしない）
+  if (new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {
