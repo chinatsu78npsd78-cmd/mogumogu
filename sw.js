@@ -1,5 +1,5 @@
 // もぐもぐスタディ オフライン対応（ネット優先・つながらない時はキャッシュ）
-const CACHE = "mogu-v4";
+const CACHE = "mogu-v5";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
