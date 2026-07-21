@@ -1176,8 +1176,8 @@ try{
   if(typeof firebase!=="undefined"){
     firebase.initializeApp(firebaseConfig);
     auth=firebase.auth(); db=firebase.firestore();
-    /* 回線・ブラウザによって通信が止まるのを防ぐ（自動で通信方式を切り替える） */
-    try{ db.settings({ experimentalAutoDetectLongPolling:true, merge:true }); }catch(e){}
+    /* 回線・ブラウザによって通信が止まるのを防ぐ（いちばん通りやすい方式を常に使う） */
+    try{ db.settings({ experimentalForceLongPolling:true, merge:true }); }catch(e){}
     fbReady=true;
   }
 }catch(e){ fbReady=false; }
